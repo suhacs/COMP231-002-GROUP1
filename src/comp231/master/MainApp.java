@@ -1,13 +1,20 @@
 package comp231.master;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 public class MainApp extends JFrame {
 
     public MainApp() {
+    	
+    	
         // Set up the JFrame
         setTitle("Inventory Management App");
         setSize(600, 400);
@@ -108,12 +115,37 @@ public class MainApp extends JFrame {
 
     public static void main(String[] args) {
         // Create and display the JFrame
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new MainApp().setVisible(true);
-            }
-        });
+		try {
+			// MySQL db_url
+			final String DB_URL = "jdbc:mysql://localhost:3306/comp231";
+			// MySQL user name
+			final String USERNAME = "root";
+			// enter your MySQL password here......
+			final String PASSWORD = "";
+			
+			// Register Driver Class
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			// Connection to the database
+			Connection connection = DriverManager.getConnection(DB_URL, USERNAME,
+					PASSWORD);
+			JOptionPane.showMessageDialog(null, "Connected to the database successfully!");
+
+	        SwingUtilities.invokeLater(new Runnable() {
+	            @Override
+	            public void run() {
+	                new MainApp().setVisible(true);
+	            }
+	        });
+
+		} catch (ClassNotFoundException ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(null, "MySQL Connector/J library not found!");
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Failed to connect to the database!");
+		}
+		
+
     }
     
     
