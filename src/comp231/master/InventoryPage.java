@@ -12,155 +12,247 @@ import java.sql.SQLException;
 
 public class InventoryPage extends JFrame {
 
-    private JTextField searchBar;
-    private JButton searchButton;
-    private JTextArea resultArea;
+	private JTextField searchBar;
+	private JButton searchButton;
+	private JTextArea resultArea;
 
-    public InventoryPage() {
-        // Set up the JFrame for Inventory Management
-        setTitle("Inventory Management");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        InventoryUpdatePanel updatePanel = new InventoryUpdatePanel();
+	public InventoryPage() {
+		// Set up the JFrame for Inventory Management
+		setTitle("Inventory Management");
+		setSize(800, 600);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		InventoryUpdatePanel updatePanel = new InventoryUpdatePanel();
 
-        // Initialize search bar UI
-        searchBar = new JTextField();
-        searchButton = new JButton("Search");
+		// Initialize search bar UI
+		searchBar = new JTextField();
+		searchButton = new JButton("Search");
 
-        // Set layout manager for Inventory Management frame
-        setLayout(new BorderLayout());
+		// Set layout manager for Inventory Management frame
+		setLayout(new BorderLayout());
 
-        // Create panel for search bar and button
-        JTextField searchBar = new JTextField();
-        searchBar.setPreferredSize(new Dimension(300, 30));
+		// Create panel for search bar and button
+		JTextField searchBar = new JTextField();
+		searchBar.setPreferredSize(new Dimension(300, 30));
 
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        searchPanel.add(searchBar);
-        searchPanel.add(searchButton);
+		JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+		searchPanel.add(searchBar);
+		searchPanel.add(searchButton);
 
-        // Create result display area
-        resultArea = new JTextArea();
-        resultArea.setEditable(false);
+		// Create result display area
+		resultArea = new JTextArea();
+		resultArea.setEditable(false);
 
-        // Create buttons for viewing, updating, and discarding inventory
-        JButton viewInventoryButton = new JButton("View Inventory Levels");
-        JButton updateInventoryButton = new JButton("Update Inventory");
-        JButton discardInventoryButton = new JButton("Discard Inventory");
+		// Create buttons for viewing, updating, and discarding inventory
+		JButton viewInventoryButton = new JButton("View Inventory Levels");
+		JButton updateInventoryButton = new JButton("Update Inventory");
+		JButton discardInventoryButton = new JButton("Discard Inventory");
 
-        // Create panel for inventory actions
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        actionPanel.add(viewInventoryButton);
-        actionPanel.add(updateInventoryButton);
-        actionPanel.add(discardInventoryButton);
+		// Create panel for inventory actions
+		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+		actionPanel.add(viewInventoryButton);
+		actionPanel.add(updateInventoryButton);
+		actionPanel.add(discardInventoryButton);
 
-        // Add components to the frame
-        add(searchPanel, BorderLayout.NORTH);
-        add(actionPanel, BorderLayout.SOUTH);
-        add(new JScrollPane(resultArea), BorderLayout.CENTER);
+		// Add components to the frame
+		add(searchPanel, BorderLayout.NORTH);
+		add(actionPanel, BorderLayout.SOUTH);
+		add(new JScrollPane(resultArea), BorderLayout.CENTER);
 
-        // Add action listeners for the buttons
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String query = searchBar.getText();
-                performSearch(query);
-            }
-        });
+		// Add action listeners for the buttons
+		searchButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String query = searchBar.getText();
+				performSearch(query);
+			}
+		});
 
-        viewInventoryButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Placeholder for viewing inventory levels
-                resultArea.setText("Viewing Inventory Levels...");
-            }
-        });
+		viewInventoryButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Placeholder for viewing inventory levels
+				resultArea.setText("Viewing Inventory Levels...");
+			}
+		});
 
-        updateInventoryButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Remove the current panel (if any)
-                getContentPane().removeAll();
-                revalidate();
-                repaint();
+		updateInventoryButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Remove the current panel (if any)
+				getContentPane().removeAll();
+				revalidate();
+				repaint();
 
-                // Create a new InventoryUpdatePanel
-                InventoryUpdatePanel updatePanel = new InventoryUpdatePanel();
+				// Create a new InventoryUpdatePanel
+				InventoryUpdatePanel updatePanel = new InventoryUpdatePanel();
 
-                // Add the update panel to the frame
-                add(updatePanel, BorderLayout.CENTER);
+				// Add the update panel to the frame
+				add(updatePanel, BorderLayout.CENTER);
 
-                // Repaint the frame to reflect the changes
-                revalidate();
-                repaint();
-            }
-        });
+				// Repaint the frame to reflect the changes
+				revalidate();
+				repaint();
+			}
+		});
 
-        discardInventoryButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Placeholder for discarding inventory
-                resultArea.setText("Discarding Inventory...");
-            }
-        });
-    }
+		discardInventoryButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Create a new dialog to input item ID and quantity
+				JPanel inputPanel = new JPanel(new GridLayout(2, 2, 10, 5));
+				JTextField itemIdField = new JTextField();
+				JTextField quantityField = new JTextField();
 
-    private void performSearch(String query) {
-        // JDBC URL, username, and password of MySQL server
-        String url = "jdbc:mysql://localhost:3306/comp231";
-        String user = "root";
-        String password = "12345678";
+				inputPanel.add(new JLabel("Item ID:"));
+				inputPanel.add(itemIdField);
+				inputPanel.add(new JLabel("Quantity:"));
+				inputPanel.add(quantityField);
 
-     // SQL query
-        String sql = "SELECT * FROM Inventory WHERE ItemName LIKE ?";
+				int option = JOptionPane.showConfirmDialog(null, inputPanel, "Discard Inventory",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        try (Connection connection = DriverManager.getConnection(url, user, password);
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+				if (option == JOptionPane.OK_OPTION) {
+					// User clicked OK, process the input
+					try {
+						int itemId = Integer.parseInt(itemIdField.getText());
+						int quantity = Integer.parseInt(quantityField.getText());
+						discardInventory(itemId, quantity);
+					} catch (NumberFormatException ex) {
+						// Handle invalid input (non-integer values)
+						JOptionPane.showMessageDialog(null, "Invalid input. Please enter valid numbers.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		});
 
-            // Set parameter for the prepared statement
-            preparedStatement.setString(1, "%" + query + "%");
+	}
 
-            // Execute the query
-            ResultSet resultSet = preparedStatement.executeQuery();
+	private void discardInventory(int itemId, int quantity) {
+	    // JDBC URL, username, and password of MySQL server
+	    String url = "jdbc:mysql://localhost:3306/comp231";
+	    String user = "root";
+	    String password = "@aaBbb2211";
 
-            // Process the result set and update the UI
-            StringBuilder searchResult = new StringBuilder("Search results:\n");
-            searchResult.append(String.format("%-10s%-10s%-12s%-10s%-15s%-15s%-50s\n",
-                    "Item ID", "Item", "Quantity", "Price", "Supplier ID", "Expiry Date", "Product Details"));
+	    // SQL query to update the quantity in the Inventory table
+	    String updateSql = "UPDATE Inventory SET Quantity = Quantity - ? WHERE ItemID = ?";
+	    // SQL query to fetch the details of the discarded item
+	    String selectSql = "SELECT * FROM Inventory WHERE ItemID = ?";
 
-            boolean resultsFound = false;
+	    try (Connection connection = DriverManager.getConnection(url, user, password);
+	         PreparedStatement updateStatement = connection.prepareStatement(updateSql);
+	         PreparedStatement selectStatement = connection.prepareStatement(selectSql)) {
 
-            while (resultSet.next()) {
-                resultsFound = true;
-                int itemId = resultSet.getInt("ItemID");
-                String itemName = resultSet.getString("ItemName");
-                int quantity = resultSet.getInt("Quantity");
-                double price = resultSet.getDouble("Price");
-                int supplierId = resultSet.getInt("SupplierID");
-                String expiryDate = resultSet.getString("ExpiryDate");
-                String productDetails = resultSet.getString("ProductDetails");
+	        // Set parameters for the update statement
+	        updateStatement.setInt(1, quantity);
+	        updateStatement.setInt(2, itemId);
 
-                searchResult.append(String.format("%-10d%-20s%-10d%-10.2f%-15d%-15s%-50s\n",
-                        itemId, itemName, quantity, price, supplierId, expiryDate, productDetails));
-            }
+	        // Execute the update query
+	        int rowsAffected = updateStatement.executeUpdate();
 
-            if (!resultsFound) {
-                searchResult.append(String.format("No results found for: %s", query));
-            }
+	        if (rowsAffected > 0) {
+	            // The update was successful
+	            // Fetch the details of the discarded item
+	            selectStatement.setInt(1, itemId);
+	            ResultSet resultSet = selectStatement.executeQuery();
 
-            resultArea.setText(searchResult.toString());
+	            if (resultSet.next()) {
+	                // Display the details in the resultArea
+	                resultArea.append("\n\nDetails of Inventory after discard:\n");
+	                resultArea.append(String.format("%-10s%-10s%-12s%-10s%-15s%-15s%-50s\n", "Item ID", "Item", "Quantity",
+	                        "Price", "Supplier ID", "Expiry Date", "Product Details"));
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Handle exceptions (log or display an error message)
-        }
-    }
+	                int discardedItemId = resultSet.getInt("ItemID");
+	                String itemName = resultSet.getString("ItemName");
+	                int discardedQuantity = resultSet.getInt("Quantity");
+	                double price = resultSet.getDouble("Price");
+	                int supplierId = resultSet.getInt("SupplierID");
+	                String expiryDate = resultSet.getString("ExpiryDate");
+	                String productDetails = resultSet.getString("ProductDetails");
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new InventoryPage().setVisible(true);
-            }
-        });
-    }
+	                resultArea.append(String.format("%-10d%-20s%-10d%-10.2f%-15d%-15s%-50s\n", discardedItemId, itemName,
+	                        discardedQuantity, price, supplierId, expiryDate, productDetails));
+	                
+	                // Display success message
+	                String successMessage = "Inventory discarded successfully. Discarded Quantity: " + quantity;
+	                JOptionPane.showMessageDialog(null, successMessage, "Success", JOptionPane.INFORMATION_MESSAGE);
+	            } else {
+	                // No rows were affected, meaning the item with the specified ItemID was not found
+	                JOptionPane.showMessageDialog(null, "Item not found. Please enter a valid Item ID.", "Error",
+	                        JOptionPane.ERROR_MESSAGE);
+	            }
+	        } else {
+	            // No rows were affected, meaning the item with the specified ItemID was not found
+	            JOptionPane.showMessageDialog(null, "Item not found. Please enter a valid Item ID.", "Error",
+	                    JOptionPane.ERROR_MESSAGE);
+	        }
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Error discarding inventory: " + e.getMessage(), "Error",
+	                JOptionPane.ERROR_MESSAGE);
+	    }
+	}
+
+
+
+	private void performSearch(String query) {
+		// JDBC URL, username, and password of MySQL server
+		String url = "jdbc:mysql://localhost:3306/comp231";
+		String user = "root";
+		String password = "@aaBbb2211";
+
+		// SQL query
+		String sql = "SELECT * FROM Inventory WHERE ItemName LIKE ?";
+
+		try (Connection connection = DriverManager.getConnection(url, user, password);
+				PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+			// Set parameter for the prepared statement
+			preparedStatement.setString(1, "%" + query + "%");
+
+			// Execute the query
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			// Process the result set and update the UI
+			StringBuilder searchResult = new StringBuilder("Search results:\n");
+			searchResult.append(String.format("%-10s%-10s%-12s%-10s%-15s%-15s%-50s\n", "Item ID", "Item", "Quantity",
+					"Price", "Supplier ID", "Expiry Date", "Product Details"));
+
+			boolean resultsFound = false;
+
+			while (resultSet.next()) {
+				resultsFound = true;
+				int itemId = resultSet.getInt("ItemID");
+				String itemName = resultSet.getString("ItemName");
+				int quantity = resultSet.getInt("Quantity");
+				double price = resultSet.getDouble("Price");
+				int supplierId = resultSet.getInt("SupplierID");
+				String expiryDate = resultSet.getString("ExpiryDate");
+				String productDetails = resultSet.getString("ProductDetails");
+
+				searchResult.append(String.format("%-10d%-20s%-10d%-10.2f%-15d%-15s%-50s\n", itemId, itemName, quantity,
+						price, supplierId, expiryDate, productDetails));
+			}
+
+			if (!resultsFound) {
+				searchResult.append(String.format("No results found for: %s", query));
+			}
+
+			resultArea.setText(searchResult.toString());
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			// Handle exceptions (log or display an error message)
+		}
+	}
+
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				new InventoryPage().setVisible(true);
+			}
+		});
+	}
 }
