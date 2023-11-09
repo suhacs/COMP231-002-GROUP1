@@ -12,7 +12,9 @@ public class InventoryPage extends JFrame {
         setTitle("Inventory Management");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        InventoryUpdatePanel updatePanel = new InventoryUpdatePanel();
 
+        
         // Create search bar UI
         JTextField searchBar = new JTextField();
         searchBar.setPreferredSize(new Dimension(300, 30));
@@ -68,8 +70,20 @@ public class InventoryPage extends JFrame {
         updateInventoryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Placeholder for updating inventory
-                resultArea.setText("Updating Inventory...");
+                // Remove the current panel (if any)
+                getContentPane().removeAll();
+                revalidate();
+                repaint();
+
+                // Create a new InventoryUpdatePanel
+                InventoryUpdatePanel updatePanel = new InventoryUpdatePanel();
+
+                // Add the update panel to the frame
+                add(updatePanel, BorderLayout.CENTER);
+
+                // Repaint the frame to reflect the changes
+                revalidate();
+                repaint();
             }
         });
 
