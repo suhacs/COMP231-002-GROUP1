@@ -34,7 +34,7 @@ public class MainApp extends JFrame {
         homeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(MainApp.this, "You are on the Home page");
+                JOptionPane.showMessageDialog(MainApp.this, "You are on the Home page.");
             }
         });
 
