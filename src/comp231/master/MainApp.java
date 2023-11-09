@@ -121,7 +121,7 @@ public class MainApp extends JFrame {
 			// MySQL user name
 			final String USERNAME = "root";
 			// enter your MySQL password here......
-			final String PASSWORD = "@aaBbb2211";
+			final String PASSWORD = "";
 			
 			// Register Driver Class
 			Class.forName("com.mysql.cj.jdbc.Driver");
