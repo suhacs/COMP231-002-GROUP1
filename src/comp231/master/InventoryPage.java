@@ -46,12 +46,15 @@ public class InventoryPage extends JFrame {
 		JButton viewInventoryButton = new JButton("View Inventory Levels");
 		JButton updateInventoryButton = new JButton("Update Inventory");
 		JButton discardInventoryButton = new JButton("Discard Inventory");
+		JButton viewDisposalButton = new JButton("View Disposal Records");
 
+		
 		// Create panel for inventory actions
 		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
 		actionPanel.add(viewInventoryButton);
 		actionPanel.add(updateInventoryButton);
 		actionPanel.add(discardInventoryButton);
+		actionPanel.add(viewDisposalButton);
 
 		// Add components to the frame
 		add(searchPanel, BorderLayout.NORTH);
@@ -125,21 +128,26 @@ public class InventoryPage extends JFrame {
 				}
 			}
 		});
+		
+		viewDisposalButton.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        viewDisposalRecords();
+		    }
+		});
 
 	}
+	
+	
 
 	private void discardInventory(int itemId, int quantity) {
-	    // JDBC URL, username, and password of MySQL server
-	    String url = "jdbc:mysql://localhost:3306/comp231";
-	    String user = "root";
-	    String password = "@aaBbb2211";
 
 	    // SQL query to update the quantity in the Inventory table
 	    String updateSql = "UPDATE Inventory SET Quantity = Quantity - ? WHERE ItemID = ?";
 	    // SQL query to fetch the details of the discarded item
 	    String selectSql = "SELECT * FROM Inventory WHERE ItemID = ?";
 
-	    try (Connection connection = DriverManager.getConnection(url, user, password);
+	    try (Connection connection = DatabaseManager.getConnection();
 	         PreparedStatement updateStatement = connection.prepareStatement(updateSql);
 	         PreparedStatement selectStatement = connection.prepareStatement(selectSql)) {
 
@@ -197,15 +205,10 @@ public class InventoryPage extends JFrame {
 
 
 	private void performSearch(String query) {
-		// JDBC URL, username, and password of MySQL server
-		String url = "jdbc:mysql://localhost:3306/comp231";
-		String user = "root";
-		String password = "@aaBbb2211";
-
 		// SQL query
 		String sql = "SELECT * FROM Inventory WHERE ItemName LIKE ?";
 
-		try (Connection connection = DriverManager.getConnection(url, user, password);
+		try (Connection connection = DatabaseManager.getConnection();
 				PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
 			// Set parameter for the prepared statement
@@ -245,6 +248,42 @@ public class InventoryPage extends JFrame {
 			e.printStackTrace();
 			// Handle exceptions (log or display an error message)
 		}
+	}
+	
+	private void viewDisposalRecords() {
+	    // SQL query to fetch disposal records
+	    String disposalSql = "SELECT * FROM Disposal";
+
+	    try (Connection connection = DatabaseManager.getConnection();
+	         PreparedStatement disposalStatement = connection.prepareStatement(disposalSql)) {
+
+	        // Execute the query
+	        ResultSet disposalResultSet = disposalStatement.executeQuery();
+
+	        // Process the result set and update the UI
+	        StringBuilder disposalResult = new StringBuilder("Disposal Records:\n");
+	        disposalResult.append(String.format("%-10s%-20s%-15s%-20s\n", "Disposal ID", "Item Name", "Quantity Disposed",
+	                "Disposal Reason"));
+
+	        while (disposalResultSet.next()) {
+	            int disposalId = disposalResultSet.getInt("DisposalID");
+	            String itemName = disposalResultSet.getString("ItemName");
+	            int itemId = disposalResultSet.getInt("ItemID");
+	            int quantityDisposed = disposalResultSet.getInt("QuantityDisposed");
+	            String disposalReason = disposalResultSet.getString("DisposalReason");
+
+	            disposalResult.append(String.format("%-10d%-20s%-15d%-20s\n", disposalId, itemName, quantityDisposed,
+	                    disposalReason));
+	        }
+
+	        resultArea.setText(disposalResult.toString());
+
+	    } catch (SQLException ex) {
+	        ex.printStackTrace();
+	        // Handle exceptions (log or display an error message)
+	        JOptionPane.showMessageDialog(null, "Error retrieving disposal records: " + ex.getMessage(), "Error",
+	                JOptionPane.ERROR_MESSAGE);
+	    }
 	}
 
 	public static void main(String[] args) {

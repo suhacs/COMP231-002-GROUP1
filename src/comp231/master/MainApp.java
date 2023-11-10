@@ -116,18 +116,12 @@ public class MainApp extends JFrame {
     public static void main(String[] args) {
         // Create and display the JFrame
 		try {
-			// MySQL db_url
-			final String DB_URL = "jdbc:mysql://localhost:3306/comp231";
-			// MySQL user name
-			final String USERNAME = "root";
-			// enter your MySQL password here......
-			final String PASSWORD = "@aaBbb2211";
+
 			
 			// Register Driver Class
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			// Connection to the database
-			Connection connection = DriverManager.getConnection(DB_URL, USERNAME,
-					PASSWORD);
+			Connection connection = DatabaseManager.getConnection();
 			JOptionPane.showMessageDialog(null, "Connected to the database successfully!");
 
 	        SwingUtilities.invokeLater(new Runnable() {
