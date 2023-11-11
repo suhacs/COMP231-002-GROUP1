@@ -1,0 +1,57 @@
+[33mcommit df108778341501f9081d6665f11e653da46a985e[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 36486ac 61d198a
+Author: chitklaus <chitklaus@gmail.com>
+Date:   Thu Nov 9 12:59:15 2023 -0500
+
+    Merge branch 'master' of https://github.com/suhacs/COMP231-002-GROUP1
+
+[33mcommit 36486acb9de5e4517d00fe4e50fbe9e83968c9e9[m
+Author: chitklaus114 <slee592@my.centennialcollege.ca>
+Date:   Thu Nov 9 12:44:31 2023 -0500
+
+    User Story: A user can do a basic search that searches for a word.
+
+[33mcommit 61d198abb089e0be20909e6452cc10041b7b27ad[m
+Author: chunyim <chunhinyim@gmail.com>
+Date:   Thu Nov 9 11:40:32 2023 -0500
+
+    minor change
+
+[33mcommit 50e698fe10228fcd740c532cb2a44ce2eb9eb627[m
+Author: chunyim <chunhinyim@gmail.com>
+Date:   Thu Nov 9 11:36:05 2023 -0500
+
+    added connnection to mysql function
+
+[33mcommit 89c17645d085c20b23c76575c256bfeb4368063e[m
+Merge: 083399c a593f25
+Author: chunyim <133053886+chunyim@users.noreply.github.com>
+Date:   Thu Nov 9 10:48:08 2023 -0500
+
+    Merge pull request #1 from suhacs/suha
+    
+    Add inventory update UI
+
+[33mcommit a593f25796b0e14410d9f2fba418d8634b3c833f[m
+Author: suhacs <parksuha94@gmail.com>
+Date:   Thu Nov 9 10:38:28 2023 -0500
+
+    Add inventory update UI
+
+[33mcommit 083399c2adcfacc756763e40cd25debc83e0c590[m
+Author: chunyim <chunhinyim@gmail.com>
+Date:   Thu Nov 9 10:14:04 2023 -0500
+
+    minor change
+
+[33mcommit 73ba53e4374744370ccdd335db0d618411f1d529[m
+Author: chunyim <chunhinyim@gmail.com>
+Date:   Thu Nov 9 10:11:26 2023 -0500
+
+    class path changes
+
+[33mcommit 187c4cdb7338b4d7c42be4860b5421376d90dca7[m
+Author: chunyim <chunhinyim@gmail.com>
+Date:   Thu Nov 9 08:10:08 2023 -0500
+
+    first commit
