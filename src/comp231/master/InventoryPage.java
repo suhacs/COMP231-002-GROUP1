@@ -180,7 +180,7 @@ public class InventoryPage extends JFrame {
 	            // The update was successful
 	            // Fetch the details of the discarded item
 	            selectStatement.setInt(1, itemId);
-
+		    resultSet = selectStatement.executeQuery();
 	            if (resultSet.next()) {
 	                // Display the details in the resultArea
 	                resultArea.append("\n\nDetails of Inventory after discard:\n");
