@@ -151,6 +151,24 @@ public class InventoryPage extends JFrame {
 	         PreparedStatement updateStatement = connection.prepareStatement(updateSql);
 	         PreparedStatement selectStatement = connection.prepareStatement(selectSql)) {
 
+		// Check current inventory level before attempting to discard
+	        selectStatement.setInt(1, itemId);
+	        ResultSet resultSet = selectStatement.executeQuery();
+	        if (resultSet.next()) {
+	            int currentQuantity = resultSet.getInt("Quantity");
+	            if (quantity > currentQuantity) {
+	                // If discard quantity is greater than current stock, show an error and return
+	                JOptionPane.showMessageDialog(null, "Cannot discard more items than are in stock.", "Error",
+	                        JOptionPane.ERROR_MESSAGE);
+	                return; // Prevents the rest of the code from running
+	            }
+	        } else {
+	            // If item is not found, show an error and return
+	            JOptionPane.showMessageDialog(null, "Item not found. Please enter a valid Item ID.", "Error",
+	                    JOptionPane.ERROR_MESSAGE);
+	            return;
+	        } 
+
 	        // Set parameters for the update statement
 	        updateStatement.setInt(1, quantity);
 	        updateStatement.setInt(2, itemId);
@@ -162,7 +180,6 @@ public class InventoryPage extends JFrame {
 	            // The update was successful
 	            // Fetch the details of the discarded item
 	            selectStatement.setInt(1, itemId);
-	            ResultSet resultSet = selectStatement.executeQuery();
 
 	            if (resultSet.next()) {
 	                // Display the details in the resultArea
