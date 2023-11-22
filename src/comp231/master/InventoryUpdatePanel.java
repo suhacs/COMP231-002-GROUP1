@@ -128,13 +128,7 @@ public class InventoryUpdatePanel extends JPanel {
     // Method to perform the SQL function to update inventory
     private void updateInventory(String itemName, int newQuantity, double newPrice) {
         try {
-            // Connection details (replace with your own database connection details)
-            String jdbcUrl = "jdbc:mysql://localhost:3306/comp231";
-            String username = "root";
-            String password = "@aaBbb2211";
-
-            // Establish the connection
-            Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
+        	Connection connection = DatabaseManager.getConnection();
 
             // SQL update statement
             String sql = "UPDATE Inventory SET Quantity = ?, Price = ? WHERE ItemName = ?";

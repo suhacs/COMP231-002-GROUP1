@@ -5,10 +5,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.swing.table.DefaultTableModel;
+
 
 public class InventoryPage extends JFrame {
 
@@ -16,6 +17,7 @@ public class InventoryPage extends JFrame {
 	private JButton searchButton;
 	private JTextArea resultArea;
 
+    
 	public InventoryPage() {
 		// Set up the JFrame for Inventory Management
 		setTitle("Inventory Management");
@@ -31,9 +33,8 @@ public class InventoryPage extends JFrame {
 		setLayout(new BorderLayout());
 
 		// Create panel for search bar and button
-		JTextField searchBar = new JTextField();
+//		JTextField searchBar = new JTextField();
 		searchBar.setPreferredSize(new Dimension(300, 30));
-
 		JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 		searchPanel.add(searchBar);
 		searchPanel.add(searchButton);
@@ -56,6 +57,18 @@ public class InventoryPage extends JFrame {
 		actionPanel.add(discardInventoryButton);
 		actionPanel.add(viewDisposalButton);
 
+		
+        // Create the table model with column names
+        DefaultTableModel tableModel = new DefaultTableModel();
+        tableModel.addColumn("Item ID");
+        tableModel.addColumn("Item Name");
+        tableModel.addColumn("Quantity");
+        tableModel.addColumn("Optimum Level");
+        tableModel.addColumn("Supplier ID");
+        tableModel.addColumn("Expiry Date");
+
+        
+        
 		// Add components to the frame
 		add(searchPanel, BorderLayout.NORTH);
 		add(actionPanel, BorderLayout.SOUTH);
@@ -67,14 +80,14 @@ public class InventoryPage extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String query = searchBar.getText();
 				performSearch(query);
+				searchBar.setText("");
 			}
 		});
 
 		viewInventoryButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Placeholder for viewing inventory levels
-				resultArea.setText("Viewing Inventory Levels...");
+				displayInventoryLevel();
 			}
 		});
 
@@ -139,8 +152,61 @@ public class InventoryPage extends JFrame {
 	}
 	
 	
+	private void displayInventoryLevel() {
+	    // Set monospaced font for better alignment
+	    resultArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+	    // Clear the existing data in the resultArea
+	    resultArea.setText("");
+
+	    // SQL query
+	    String sql = "SELECT ItemID, ItemName, Quantity, OptimumLevel, SupplierID, ExpiryDate FROM Inventory";
+
+	    try (Connection connection = DatabaseManager.getConnection();
+	         PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+	        // Execute the query
+	        ResultSet resultSet = preparedStatement.executeQuery();
+
+	        // Process the result set and update the resultArea
+	        StringBuilder formattedInventoryData = new StringBuilder("Inventory Levels:\n");
+	        formattedInventoryData.append(String.format("%-10s%-20s%-10s%-15s%-15s%-20s\n", "Item ID", "Item Name", "Quantity",
+	                "Optimum Level", "Supplier ID", "Expiry Date"));
+
+	        while (resultSet.next()) {
+	            int itemId = resultSet.getInt("ItemID");
+	            String itemName = resultSet.getString("ItemName");
+	            int quantity = resultSet.getInt("Quantity");
+	            int optimumLevel = resultSet.getInt("OptimumLevel");
+	            int supplierId = resultSet.getInt("SupplierID");
+	            String expiryDate = resultSet.getString("ExpiryDate");
+
+	            // Append the formatted data to the StringBuilder
+	            formattedInventoryData.append(String.format("%-10d%-20s%-10d%-15d%-15d%-20s\n", itemId, itemName, quantity,
+	                    optimumLevel, supplierId, expiryDate));
+	        }
+
+	        // Set the formatted data to the resultArea
+	        resultArea.setText(formattedInventoryData.toString());
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        // Handle exceptions (log or display an error message)
+	        JOptionPane.showMessageDialog(null, "Error in showing inventory level: " + e.getMessage(), "Error",
+	                JOptionPane.ERROR_MESSAGE);
+	    }
+	}
+
+
+
 
 	private void discardInventory(int itemId, int quantity) {
+		
+	    // Set monospaced font for better alignment
+	    resultArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+	    // Clear the existing data in the resultArea
+	    resultArea.setText("");
 
 	    // SQL query to update the quantity in the Inventory table
 	    String updateSql = "UPDATE Inventory SET Quantity = Quantity - ? WHERE ItemID = ?";
@@ -183,24 +249,25 @@ public class InventoryPage extends JFrame {
 		    resultSet = selectStatement.executeQuery();
 	            if (resultSet.next()) {
 	                // Display the details in the resultArea
-	                resultArea.append("\n\nDetails of Inventory after discard:\n");
-	                resultArea.append(String.format("%-10s%-10s%-12s%-10s%-15s%-15s%-50s\n", "Item ID", "Item", "Quantity",
-	                        "Price", "Supplier ID", "Expiry Date", "Product Details"));
+	            	resultArea.append("\n\nDetails of Inventory after discard:\n");
+	            	resultArea.append(String.format("%-10s%-20s%-12s%-10s%-15s%-15s%-50s\n", "Item ID", "Item", "Quantity",
+	            	        "Price", "Supplier ID", "Expiry Date", "Product Details"));
 
-	                int discardedItemId = resultSet.getInt("ItemID");
-	                String itemName = resultSet.getString("ItemName");
-	                int discardedQuantity = resultSet.getInt("Quantity");
-	                double price = resultSet.getDouble("Price");
-	                int supplierId = resultSet.getInt("SupplierID");
-	                String expiryDate = resultSet.getString("ExpiryDate");
-	                String productDetails = resultSet.getString("ProductDetails");
+	            	int discardedItemId = resultSet.getInt("ItemID");
+	            	String itemName = resultSet.getString("ItemName");
+	            	int discardedQuantity = resultSet.getInt("Quantity");
+	            	double price = resultSet.getDouble("Price");
+	            	int supplierId = resultSet.getInt("SupplierID");
+	            	String expiryDate = resultSet.getString("ExpiryDate");
+	            	String productDetails = resultSet.getString("ProductDetails");
 
-	                resultArea.append(String.format("%-10d%-20s%-10d%-10.2f%-15d%-15s%-50s\n", discardedItemId, itemName,
-	                        discardedQuantity, price, supplierId, expiryDate, productDetails));
-	                
-	                // Display success message
-	                String successMessage = "Inventory discarded successfully. Discarded Quantity: " + quantity;
-	                JOptionPane.showMessageDialog(null, successMessage, "Success", JOptionPane.INFORMATION_MESSAGE);
+	            	resultArea.append(String.format("%-10d%-20s%-12d%-10.2f%-15d%-15s%-50s\n", discardedItemId, itemName,
+	            	        discardedQuantity, price, supplierId, expiryDate, productDetails));
+
+	            	// Display success message
+	            	String successMessage = "Inventory discarded successfully. Discarded Quantity: " + quantity;
+	            	JOptionPane.showMessageDialog(null, successMessage, "Success", JOptionPane.INFORMATION_MESSAGE);
+
 	            } else {
 	                // No rows were affected, meaning the item with the specified ItemID was not found
 	                JOptionPane.showMessageDialog(null, "Item not found. Please enter a valid Item ID.", "Error",
@@ -222,6 +289,13 @@ public class InventoryPage extends JFrame {
 
 
 	private void performSearch(String query) {
+		
+	    // Set monospaced font for better alignment
+	    resultArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+	    // Clear the existing data in the resultArea
+	    resultArea.setText("");
+	    
 		// SQL query
 		String sql = "SELECT * FROM Inventory WHERE ItemName LIKE ?";
 
@@ -236,27 +310,27 @@ public class InventoryPage extends JFrame {
 
 			// Process the result set and update the UI
 			StringBuilder searchResult = new StringBuilder("Search results:\n");
-			searchResult.append(String.format("%-10s%-10s%-12s%-10s%-15s%-15s%-50s\n", "Item ID", "Item", "Quantity",
-					"Price", "Supplier ID", "Expiry Date", "Product Details"));
+			searchResult.append(String.format("%-10s%-20s%-12s%-10s%-15s%-15s%-50s\n", "Item ID", "Item", "Quantity",
+			        "Price", "Supplier ID", "Expiry Date", "Product Details"));
 
 			boolean resultsFound = false;
 
 			while (resultSet.next()) {
-				resultsFound = true;
-				int itemId = resultSet.getInt("ItemID");
-				String itemName = resultSet.getString("ItemName");
-				int quantity = resultSet.getInt("Quantity");
-				double price = resultSet.getDouble("Price");
-				int supplierId = resultSet.getInt("SupplierID");
-				String expiryDate = resultSet.getString("ExpiryDate");
-				String productDetails = resultSet.getString("ProductDetails");
+			    resultsFound = true;
+			    int itemId = resultSet.getInt("ItemID");
+			    String itemName = resultSet.getString("ItemName");
+			    int quantity = resultSet.getInt("Quantity");
+			    double price = resultSet.getDouble("Price");
+			    int supplierId = resultSet.getInt("SupplierID");
+			    String expiryDate = resultSet.getString("ExpiryDate");
+			    String productDetails = resultSet.getString("ProductDetails");
 
-				searchResult.append(String.format("%-10d%-20s%-10d%-10.2f%-15d%-15s%-50s\n", itemId, itemName, quantity,
-						price, supplierId, expiryDate, productDetails));
+			    searchResult.append(String.format("%-10d%-20s%-12d%-10.2f%-15d%-15s%-50s\n", itemId, itemName, quantity,
+			            price, supplierId, expiryDate, productDetails));
 			}
 
 			if (!resultsFound) {
-				searchResult.append(String.format("No results found for: %s", query));
+			    searchResult.append(String.format("No results found for: %s", query));
 			}
 
 			resultArea.setText(searchResult.toString());
@@ -268,6 +342,12 @@ public class InventoryPage extends JFrame {
 	}
 	
 	private void viewDisposalRecords() {
+	    // Set monospaced font for better alignment
+	    resultArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+	    // Clear the existing data in the resultArea
+	    resultArea.setText("");
+
 	    // SQL query to fetch disposal records
 	    String disposalSql = "SELECT * FROM Disposal";
 
@@ -279,8 +359,8 @@ public class InventoryPage extends JFrame {
 
 	        // Process the result set and update the UI
 	        StringBuilder disposalResult = new StringBuilder("Disposal Records:\n");
-	        disposalResult.append(String.format("%-10s%-20s%-15s%-20s\n", "Disposal ID", "Item Name", "Quantity Disposed",
-	                "Disposal Reason"));
+	        disposalResult.append(String.format("%-10s%-20s%-15s%-20s\n", "ID", "Item", "Quantity",
+	                "Reason"));
 
 	        while (disposalResultSet.next()) {
 	            int disposalId = disposalResultSet.getInt("DisposalID");
@@ -302,6 +382,7 @@ public class InventoryPage extends JFrame {
 	                JOptionPane.ERROR_MESSAGE);
 	    }
 	}
+
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
