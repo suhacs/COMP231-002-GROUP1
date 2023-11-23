@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.table.DefaultTableModel;
 
 
 public class InventoryPage extends JFrame {
@@ -23,7 +22,6 @@ public class InventoryPage extends JFrame {
 		setTitle("Inventory Management");
 		setSize(800, 600);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		InventoryUpdatePanel updatePanel = new InventoryUpdatePanel();
 
 		// Initialize search bar UI
 		searchBar = new JTextField();
@@ -57,15 +55,7 @@ public class InventoryPage extends JFrame {
 		actionPanel.add(discardInventoryButton);
 		actionPanel.add(viewDisposalButton);
 
-		
-        // Create the table model with column names
-        DefaultTableModel tableModel = new DefaultTableModel();
-        tableModel.addColumn("Item ID");
-        tableModel.addColumn("Item Name");
-        tableModel.addColumn("Quantity");
-        tableModel.addColumn("Optimum Level");
-        tableModel.addColumn("Supplier ID");
-        tableModel.addColumn("Expiry Date");
+
 
         
         
@@ -92,23 +82,10 @@ public class InventoryPage extends JFrame {
 		});
 
 		updateInventoryButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Remove the current panel (if any)
-				getContentPane().removeAll();
-				revalidate();
-				repaint();
-
-				// Create a new InventoryUpdatePanel
-				InventoryUpdatePanel updatePanel = new InventoryUpdatePanel();
-
-				// Add the update panel to the frame
-				add(updatePanel, BorderLayout.CENTER);
-
-				// Repaint the frame to reflect the changes
-				revalidate();
-				repaint();
-			}
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        updateInventory();
+		    }
 		});
 
 		discardInventoryButton.addActionListener(new ActionListener() {
@@ -151,6 +128,98 @@ public class InventoryPage extends JFrame {
 
 	}
 	
+	
+	private void updateInventory() {
+	    // Get the ItemID from the user
+	    String itemIdInput = JOptionPane.showInputDialog("Enter Item ID to update:");
+
+	    if (itemIdInput != null && !itemIdInput.isEmpty()) {
+	        try {
+	            // Parse the ItemID provided by the user
+	            int itemId = Integer.parseInt(itemIdInput);
+
+	            // Fetch the existing details of the item
+	            String selectSql = "SELECT * FROM Inventory WHERE ItemID = ?";
+	            try (Connection connection = DatabaseManager.getConnection();
+	                 PreparedStatement selectStatement = connection.prepareStatement(selectSql)) {
+
+	                selectStatement.setInt(1, itemId);
+
+	                ResultSet resultSet = selectStatement.executeQuery();
+
+	                if (resultSet.next()) {
+	                    // Fetch existing details
+	                    String existingItemName = resultSet.getString("ItemName");
+	                    int existingQuantity = resultSet.getInt("Quantity");
+	                    double existingPrice = resultSet.getDouble("Price");
+	                    int existingSupplierId = resultSet.getInt("SupplierID");
+	                    String existingExpiryDate = resultSet.getString("ExpiryDate");
+	                    String existingProductDetails = resultSet.getString("ProductDetails");
+	                    int existingOptimumLevel = resultSet.getInt("OptimumLevel");
+
+	                    // Prompt the user for updates
+	                    String newItemName = JOptionPane.showInputDialog("Enter new Item Name (or leave blank to keep existing):", existingItemName);
+	                    String quantityInput = JOptionPane.showInputDialog("Enter new Quantity (or leave blank to keep existing):", String.valueOf(existingQuantity));
+	                    int newQuantity = (quantityInput != null && !quantityInput.isEmpty()) ? Integer.parseInt(quantityInput) : existingQuantity;
+	                    String priceInput = JOptionPane.showInputDialog("Enter new Price (or leave blank to keep existing):", String.valueOf(existingPrice));
+	                    double newPrice = (priceInput != null && !priceInput.isEmpty()) ? Double.parseDouble(priceInput) : existingPrice;
+	                    String supplierIdInput = JOptionPane.showInputDialog("Enter new Supplier ID (or leave blank to keep existing):", String.valueOf(existingSupplierId));
+	                    int newSupplierId = (supplierIdInput != null && !supplierIdInput.isEmpty()) ? Integer.parseInt(supplierIdInput) : existingSupplierId;
+	                    String newExpiryDate = JOptionPane.showInputDialog("Enter new Expiry Date (YYYY-MM-DD) (or leave blank to keep existing):", existingExpiryDate);
+	                    String newProductDetails = JOptionPane.showInputDialog("Enter new Product Details (or leave blank to keep existing):", existingProductDetails);
+	                    String optimumLevelInput = JOptionPane.showInputDialog("Enter new Optimum Level (or leave blank to keep existing):", String.valueOf(existingOptimumLevel));
+	                    int newOptimumLevel = (optimumLevelInput != null && !optimumLevelInput.isEmpty()) ? Integer.parseInt(optimumLevelInput) : existingOptimumLevel;
+
+	                    // Update the Inventory based on user input
+	                    updateInventory(itemId, newItemName, newQuantity, newPrice, newSupplierId, newExpiryDate, newProductDetails, newOptimumLevel);
+	                } else {
+	                    JOptionPane.showMessageDialog(null, "Item ID not found.", "Error", JOptionPane.ERROR_MESSAGE);
+	                }
+	            }
+	        } catch (NumberFormatException ex) {
+	            JOptionPane.showMessageDialog(null, "Invalid input. Please enter valid numbers.", "Error", JOptionPane.ERROR_MESSAGE);
+	        } catch (SQLException ex) {
+	            ex.printStackTrace();
+	            JOptionPane.showMessageDialog(null, "Error updating inventory: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	        }
+	    }
+	}
+
+	private void updateInventory(int itemId, String newItemName, int newQuantity, double newPrice, int newSupplierId, String newExpiryDate, String newProductDetails, int newOptimumLevel) {
+	    // Update the Inventory based on user input
+	    String updateSql = "UPDATE Inventory SET " +
+	            "ItemName = COALESCE(?, ItemName), " +
+	            "Quantity = COALESCE(?, Quantity), " +
+	            "Price = COALESCE(?, Price), " +
+	            "SupplierID = COALESCE(?, SupplierID), " +
+	            "ExpiryDate = COALESCE(?, ExpiryDate), " +
+	            "ProductDetails = COALESCE(?, ProductDetails), " +
+	            "OptimumLevel = COALESCE(?, OptimumLevel) " +
+	            "WHERE ItemID = ?";
+
+	    try (Connection connection = DatabaseManager.getConnection();
+	         PreparedStatement updateStatement = connection.prepareStatement(updateSql)) {
+	        updateStatement.setString(1, newItemName);
+	        updateStatement.setInt(2, newQuantity);
+	        updateStatement.setDouble(3, newPrice);
+	        updateStatement.setInt(4, newSupplierId);
+	        updateStatement.setString(5, newExpiryDate);
+	        updateStatement.setString(6, newProductDetails);
+	        updateStatement.setInt(7, newOptimumLevel);
+	        updateStatement.setInt(8, itemId);
+
+	        int rowsAffected = updateStatement.executeUpdate();
+
+	        if (rowsAffected > 0) {
+	            JOptionPane.showMessageDialog(null, "Inventory updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+	        } else {
+	            JOptionPane.showMessageDialog(null, "Failed to update inventory.", "Error", JOptionPane.ERROR_MESSAGE);
+	        }
+	    } catch (SQLException ex) {
+	        ex.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Error updating inventory: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	    }
+	}
 	
 	private void displayInventoryLevel() {
 	    // Set monospaced font for better alignment

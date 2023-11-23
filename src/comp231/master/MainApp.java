@@ -25,7 +25,7 @@ public class MainApp extends JFrame {
         JButton inventoryButton = new JButton("Inventory Management");
         JButton orderButton = new JButton("Order Management");
         JButton salesButton = new JButton("Sales Lookup");
-        JButton wastageButton = new JButton("Wastage Update");
+        JButton wastageButton = new JButton("Wastage Lookup");
 
         // Set layout manager
         setLayout(new GridLayout(5, 1));
@@ -69,7 +69,7 @@ public class MainApp extends JFrame {
         wastageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openWastageUpdate();
+                openWastageLookup();
             }
         });
 
@@ -107,11 +107,11 @@ public class MainApp extends JFrame {
         });
     }
 
-    private void openWastageUpdate() {
+    private void openWastageLookup() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new WastageUpdatePage().setVisible(true);
+                new WastageLookUpPage().setVisible(true);
             }
         });
     }
