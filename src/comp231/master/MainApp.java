@@ -96,10 +96,13 @@ public class MainApp extends JFrame {
     }
 
     private void openSalesLookup() {
+        // Create and display the SalesLookupPage JFrame
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new SalesLookupPage().setVisible(true);
+                SalesLookupPage salesLookupPage = new SalesLookupPage();
+                salesLookupPage.displaySalesRecords();
+                salesLookupPage.setVisible(true);
             }
         });
     }
