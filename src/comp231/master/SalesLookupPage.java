@@ -26,17 +26,16 @@ public class SalesLookupPage extends JFrame {
 
 		// Add the sales lookup area to the frame
 		add(new JScrollPane(salesLookupArea), BorderLayout.CENTER);
-		
-        // Set monospaced font for better alignment
-        salesLookupArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
-        // Clear the existing data in the result area
-        salesLookupArea.setText("");
+		// Set monospaced font for better alignment
+		salesLookupArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+		// Clear the existing data in the result area
+		salesLookupArea.setText("");
 	}
 
 	public void displaySalesRecords() {
-		
-		
+
 		// SQL query to fetch sales records
 		String salesSql = "SELECT * FROM Sales";
 
@@ -69,6 +68,5 @@ public class SalesLookupPage extends JFrame {
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-
 
 }
