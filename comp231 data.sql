@@ -13,6 +13,23 @@ CREATE TABLE Inventory (
     PRIMARY KEY(ItemID)
 );
 
+CREATE TABLE `Order` (
+    OrderID INT AUTO_INCREMENT,
+    ItemID INT,
+    Quantity INT,
+    OrderDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- Add other columns from Inventory table
+    ItemName VARCHAR(255),
+    OptimumLevel INT DEFAULT 500, -- Set the default value for OptimumLevel
+    Price DECIMAL(10,2),
+    SupplierID INT,
+    ExpiryDate DATE,
+    ProductDetails TEXT,
+    PRIMARY KEY(OrderID),
+    FOREIGN KEY(ItemID) REFERENCES Inventory(ItemID) -- Assuming you have an Inventory table
+);
+
+
 CREATE TABLE Disposal (
     DisposalID INT AUTO_INCREMENT,
     ItemID INT,
@@ -58,6 +75,26 @@ SELECT * FROM Inventory;
 -- Select disposal records from the Disposal table
 SELECT * FROM Disposal;
 
+CREATE TABLE Sales (
+    SaleID INT AUTO_INCREMENT,
+    ItemID INT,
+    ItemName VARCHAR(255),
+    QuantitySold INT,
+    SaleDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(SaleID),
+    FOREIGN KEY(ItemID) REFERENCES Inventory(ItemID)
+);
+
+-- Example data for the Sales table
+INSERT INTO Sales (ItemID, ItemName, QuantitySold)
+VALUES
+(1, 'Chicken Thigh', 5),
+(2, 'Cookies', 10),
+(3, 'Apple', 8),
+(4, 'Avocado', 3),
+(5, 'Milk', 6);
+
+select * from sales;
 
 
 

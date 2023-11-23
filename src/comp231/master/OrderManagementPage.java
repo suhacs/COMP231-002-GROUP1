@@ -165,48 +165,47 @@ public class OrderManagementPage extends JFrame {
 	}
 
 	private void displayOrderTable() {
-        // SQL query to fetch order records
-        String orderSql = "SELECT * FROM `Order`";
+		// SQL query to fetch order records
+		String orderSql = "SELECT * FROM `Order`";
 
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement orderStatement = connection.prepareStatement(orderSql)) {
+		try (Connection connection = DatabaseManager.getConnection();
+				PreparedStatement orderStatement = connection.prepareStatement(orderSql)) {
 
-            // Execute the query
-            ResultSet orderResultSet = orderStatement.executeQuery();
+			// Execute the query
+			ResultSet orderResultSet = orderStatement.executeQuery();
 
-            // Process the result set and update the UI
-            StringBuilder orderResult = new StringBuilder("Order Table:\n");
-            orderResult.append(
-                    String.format("%-10s%-20s%-15s%-10s%-20s%-20s\n",
-                            "Order ID", "Item Name", "Quantity", "Price", "Supplier ID", "Expiry Date"));
+			// Process the result set and update the UI
+			StringBuilder orderResult = new StringBuilder("Order Table:\n");
+			orderResult.append(String.format("%-10s%-20s%-15s%-10s%-20s%-20s\n", "Order ID", "Item Name", "Quantity",
+					"Price", "Supplier ID", "Expiry Date"));
 
-            while (orderResultSet.next()) {
-                int orderId = orderResultSet.getInt("OrderID");
-                String itemName = orderResultSet.getString("ItemName");
-                int quantity = orderResultSet.getInt("Quantity");
-                double price = orderResultSet.getDouble("Price");
-                int supplierId = orderResultSet.getInt("SupplierID");
-                String expiryDate = orderResultSet.getString("ExpiryDate");
+			while (orderResultSet.next()) {
+				int orderId = orderResultSet.getInt("OrderID");
+				String itemName = orderResultSet.getString("ItemName");
+				int quantity = orderResultSet.getInt("Quantity");
+				double price = orderResultSet.getDouble("Price");
+				int supplierId = orderResultSet.getInt("SupplierID");
+				String expiryDate = orderResultSet.getString("ExpiryDate");
 
-                orderResult.append(String.format("%-10d%-20s%-15d%-10.2f%-20d%-20s\n",
-                        orderId, itemName, quantity, price, supplierId, expiryDate));
-            }
+				orderResult.append(String.format("%-10d%-20s%-15d%-10.2f%-20d%-20s\n", orderId, itemName, quantity,
+						price, supplierId, expiryDate));
+			}
 
-            // Show the order table using JOptionPane
-            JTextArea orderTableArea = new JTextArea();
-            orderTableArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-            orderTableArea.setEditable(false);
-            orderTableArea.setText(orderResult.toString());
+			// Show the order table using JOptionPane
+			JTextArea orderTableArea = new JTextArea();
+			orderTableArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+			orderTableArea.setEditable(false);
+			orderTableArea.setText(orderResult.toString());
 
-            JScrollPane scrollPane = new JScrollPane(orderTableArea);
-            scrollPane.setPreferredSize(new Dimension(600, 400));
+			JScrollPane scrollPane = new JScrollPane(orderTableArea);
+			scrollPane.setPreferredSize(new Dimension(600, 400));
 
-            JOptionPane.showMessageDialog(this, scrollPane, "Order Table", JOptionPane.PLAIN_MESSAGE);
+			JOptionPane.showMessageDialog(this, scrollPane, "Order Table", JOptionPane.PLAIN_MESSAGE);
 
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error retrieving order records: " + ex.getMessage(), "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Error retrieving order records: " + ex.getMessage(), "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+	}
 }
