@@ -158,12 +158,12 @@ public class OrderManagementPage extends JFrame {
 			}
 
 		} catch (SQLException ex) {
+		    // Handle any SQL exception that may occur during the order placement
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error placing order: " + ex.getMessage(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-
 	private void displayOrderTable() {
 		// SQL query to fetch order records
 		String orderSql = "SELECT * FROM `Order`";
@@ -196,10 +196,10 @@ public class OrderManagementPage extends JFrame {
 			orderTableArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 			orderTableArea.setEditable(false);
 			orderTableArea.setText(orderResult.toString());
-
+		    // Create a scroll pane for the order table area
 			JScrollPane scrollPane = new JScrollPane(orderTableArea);
 			scrollPane.setPreferredSize(new Dimension(600, 400));
-
+		    // Show a message dialog with the order table inside a scroll pane
 			JOptionPane.showMessageDialog(this, scrollPane, "Order Table", JOptionPane.PLAIN_MESSAGE);
 
 		} catch (SQLException ex) {

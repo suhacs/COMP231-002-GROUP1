@@ -49,16 +49,17 @@ public class SalesLookupPage extends JFrame {
 			StringBuilder salesResult = new StringBuilder("Sales Records:\n");
 			salesResult.append(
 					String.format("%-10s%-20s%-15s%-10s\n", "Sale ID", "Item Name", "Quantity Sold", "Sale Date"));
-
+		    // Iterate through the sales result set
 			while (salesResultSet.next()) {
+		        // Retrieve information for each sale
 				int saleId = salesResultSet.getInt("SaleID");
 				String itemName = salesResultSet.getString("ItemName");
 				int quantitySold = salesResultSet.getInt("QuantitySold");
 				String saleDate = salesResultSet.getString("SaleDate");
-
+		        // Format the sale information and append to the sales result
 				salesResult.append(String.format("%-10d%-20s%-15d%-10s\n", saleId, itemName, quantitySold, saleDate));
 			}
-
+		    // Set the text of the sales lookup area with the formatted sales result
 			salesLookupArea.setText(salesResult.toString());
 
 		} catch (SQLException ex) {

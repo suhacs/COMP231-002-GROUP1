@@ -10,7 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class InventoryPage extends JFrame {
-
+	
+    // Components for the InventoryPage GUI
 	private JTextField searchBar;
 	private JButton searchButton;
 	private JTextArea resultArea;
@@ -66,21 +67,22 @@ public class InventoryPage extends JFrame {
 				searchBar.setText("");
 			}
 		});
-
+		// Adding ActionListener to the viewInventoryButton
 		viewInventoryButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				displayInventoryLevel();
-			}
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        // Call method to display inventory level when the button is clicked
+		        displayInventoryLevel();
+		    }
 		});
-
+		// Adding ActionListener to the updateInventoryButton
 		updateInventoryButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				updateInventory();
-			}
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        // Call method to update inventory when the button is clicked
+		        updateInventory();
+		    }
 		});
-
 		discardInventoryButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -111,14 +113,14 @@ public class InventoryPage extends JFrame {
 				}
 			}
 		});
-
+		// Adding ActionListener to the viewDisposalButton
 		viewDisposalButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				viewDisposalRecords();
-			}
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        // Call method to view disposal records when the button is clicked
+		        viewDisposalRecords();
+		    }
 		});
-
 	}
 
 	private void updateInventory() {
@@ -188,16 +190,17 @@ public class InventoryPage extends JFrame {
 					}
 				}
 			} catch (NumberFormatException ex) {
+				// Catch block for handling NumberFormatException, which occurs when parsing strings to numbers
 				JOptionPane.showMessageDialog(null, "Invalid input. Please enter valid numbers.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			} catch (SQLException ex) {
+				// Catch block for handling SQLException, which may occur during database operations
 				ex.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Error updating inventory: " + ex.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
-
 	private void updateInventory(int itemId, String newItemName, int newQuantity, double newPrice, int newSupplierId,
 			String newExpiryDate, String newProductDetails, int newOptimumLevel) {
 		// Update the Inventory based on user input
@@ -206,33 +209,38 @@ public class InventoryPage extends JFrame {
 				+ "SupplierID = COALESCE(?, SupplierID), " + "ExpiryDate = COALESCE(?, ExpiryDate), "
 				+ "ProductDetails = COALESCE(?, ProductDetails), " + "OptimumLevel = COALESCE(?, OptimumLevel) "
 				+ "WHERE ItemID = ?";
-
+		// Try-with-resources statement for automatic resource management of Connection and PreparedStatement
 		try (Connection connection = DatabaseManager.getConnection();
-				PreparedStatement updateStatement = connection.prepareStatement(updateSql)) {
-			updateStatement.setString(1, newItemName);
-			updateStatement.setInt(2, newQuantity);
-			updateStatement.setDouble(3, newPrice);
-			updateStatement.setInt(4, newSupplierId);
-			updateStatement.setString(5, newExpiryDate);
-			updateStatement.setString(6, newProductDetails);
-			updateStatement.setInt(7, newOptimumLevel);
-			updateStatement.setInt(8, itemId);
+		        PreparedStatement updateStatement = connection.prepareStatement(updateSql)) {
+		    // Set parameters for the prepared statement
+		    updateStatement.setString(1, newItemName);
+		    updateStatement.setInt(2, newQuantity);
+		    updateStatement.setDouble(3, newPrice);
+		    updateStatement.setInt(4, newSupplierId);
+		    updateStatement.setString(5, newExpiryDate);
+		    updateStatement.setString(6, newProductDetails);
+		    updateStatement.setInt(7, newOptimumLevel);
+		    updateStatement.setInt(8, itemId);
 
-			int rowsAffected = updateStatement.executeUpdate();
+		    // Execute the update statement and get the number of rows affected
+		    int rowsAffected = updateStatement.executeUpdate();
 
-			if (rowsAffected > 0) {
-				JOptionPane.showMessageDialog(null, "Inventory updated successfully!", "Success",
-						JOptionPane.INFORMATION_MESSAGE);
-			} else {
-				JOptionPane.showMessageDialog(null, "Failed to update inventory.", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+		    // Check if the update was successful
+		    if (rowsAffected > 0) {
+		        // Display a success message if rows were affected
+		        JOptionPane.showMessageDialog(null, "Inventory updated successfully!", "Success",
+		                JOptionPane.INFORMATION_MESSAGE);
+		    } else {
+		        // Display an error message if no rows were affected
+		        JOptionPane.showMessageDialog(null, "Failed to update inventory.", "Error", JOptionPane.ERROR_MESSAGE);
+		    }
 		} catch (SQLException ex) {
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Error updating inventory: " + ex.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
+		    // Handle SQLException by printing the stack trace and displaying an error message
+		    ex.printStackTrace();
+		    JOptionPane.showMessageDialog(null, "Error updating inventory: " + ex.getMessage(), "Error",
+		            JOptionPane.ERROR_MESSAGE);
 		}
 	}
-
 	private void displayInventoryLevel() {
 		// Set monospaced font for better alignment
 		resultArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -459,13 +467,15 @@ public class InventoryPage extends JFrame {
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-
+	// Entry point for the application
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				new InventoryPage().setVisible(true);
-			}
-		});
+	    // Use SwingUtilities to invoke the creation and display of the JFrame on the Event Dispatch Thread
+	    SwingUtilities.invokeLater(new Runnable() {
+	        @Override
+	        public void run() {
+	            // Create a new instance of InventoryPage and set it to be visible
+	            new InventoryPage().setVisible(true);
+	        }
+	    });
 	}
 }

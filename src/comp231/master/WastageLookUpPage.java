@@ -50,20 +50,21 @@ public class WastageLookUpPage extends JFrame {
 			StringBuilder disposalResult = new StringBuilder("Disposal Table:\n");
 			disposalResult.append(String.format("%-10s%-20s%-15s%-20s\n", "Disposal ID", "Item Name",
 					"Quantity Disposed", "Disposal Date"));
-
+		    // Iterate through the sales result set
 			while (disposalResultSet.next()) {
+		        // Retrieve information for each sale
 				int disposalId = disposalResultSet.getInt("DisposalID");
 				String itemName = disposalResultSet.getString("ItemName");
 				int quantityDisposed = disposalResultSet.getInt("QuantityDisposed");
 				String disposalDate = disposalResultSet.getString("DisposalDate");
-
+		        // Format the sale information and append to the sales result
 				disposalResult.append(
 						String.format("%-10d%-20s%-15d%-20s\n", disposalId, itemName, quantityDisposed, disposalDate));
 			}
-
+		    // Set the text of the sales lookup area with the formatted sales result
 			disposalTableArea.setText(disposalResult.toString());
-
 		} catch (SQLException ex) {
+			// Handle exceptions (log or display an error message)
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error retrieving disposal records: " + ex.getMessage(), "Error",
 					JOptionPane.ERROR_MESSAGE);
