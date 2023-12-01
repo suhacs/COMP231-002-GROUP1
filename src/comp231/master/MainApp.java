@@ -1,9 +1,11 @@
 package comp231.master;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -83,7 +85,6 @@ public class MainApp extends JFrame {
 	}
 
 	private void openOrderManagement() {
-		// Create and display the OrderManagementPage JFrame
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -105,7 +106,6 @@ public class MainApp extends JFrame {
 	}
 
 	private void openWastageLookup() {
-		// Create and display the WastageLookUpPage JFrame
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -113,31 +113,32 @@ public class MainApp extends JFrame {
 			}
 		});
 	}
+
 	public static void main(String[] args) {
-	    // Attempt to connect to the database and display the JFrame
-	    try {
-	        // Register the MySQL JDBC driver class
-	        Class.forName("com.mysql.cj.jdbc.Driver");
+		// Create and display the JFrame
+		try {
 
-	        // Establish a connection to the database
-	        Connection connection = DatabaseManager.getConnection();
-	        JOptionPane.showMessageDialog(null, "Connected to the database successfully!");
+			// Register Driver Class
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			// Connection to the database
+			Connection connection = DatabaseManager.getConnection();
+			JOptionPane.showMessageDialog(null, "Connected to the database successfully!");
 
-	        // Create and display the main application JFrame
-	        SwingUtilities.invokeLater(new Runnable() {
-	            @Override
-	            public void run() {
-	                new MainApp().setVisible(true);
-	            }
-	        });
-	    } catch (ClassNotFoundException ex) {
-	        // Handle the case where the MySQL Connector/J library is not found
-	        ex.printStackTrace();
-	        JOptionPane.showMessageDialog(null, "MySQL Connector/J library not found!");
-	    } catch (SQLException ex) {
-	        // Handle the case where there is a failure to connect to the database
-	        ex.printStackTrace();
-	        JOptionPane.showMessageDialog(null, "Failed to connect to the database!");
-	    }
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					new MainApp().setVisible(true);
+				}
+			});
+
+		} catch (ClassNotFoundException ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(null, "MySQL Connector/J library not found!");
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Failed to connect to the database!");
+		}
+
 	}
+
 }

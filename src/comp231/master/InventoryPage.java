@@ -10,11 +10,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class InventoryPage extends JFrame {
-	
-    // Components for the InventoryPage GUI
+
 	private JTextField searchBar;
 	private JButton searchButton;
 	private JTextArea resultArea;
+	private InventorySearcher searcher = new InventorySearcher(); 
+    private InventoryDataFetcher dataFetcher = new InventoryDataFetcher();
+
 
 	public InventoryPage() {
 		// Set up the JFrame for Inventory Management
@@ -67,22 +69,21 @@ public class InventoryPage extends JFrame {
 				searchBar.setText("");
 			}
 		});
-		// Adding ActionListener to the viewInventoryButton
+
 		viewInventoryButton.addActionListener(new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent e) {
-		        // Call method to display inventory level when the button is clicked
-		        displayInventoryLevel();
-		    }
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				displayInventoryLevel();
+			}
 		});
-		// Adding ActionListener to the updateInventoryButton
+
 		updateInventoryButton.addActionListener(new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent e) {
-		        // Call method to update inventory when the button is clicked
-		        updateInventory();
-		    }
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateInventory();
+			}
 		});
+
 		discardInventoryButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -113,14 +114,14 @@ public class InventoryPage extends JFrame {
 				}
 			}
 		});
-		// Adding ActionListener to the viewDisposalButton
+
 		viewDisposalButton.addActionListener(new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent e) {
-		        // Call method to view disposal records when the button is clicked
-		        viewDisposalRecords();
-		    }
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				viewDisposalRecords();
+			}
 		});
+
 	}
 
 	private void updateInventory() {
@@ -190,17 +191,16 @@ public class InventoryPage extends JFrame {
 					}
 				}
 			} catch (NumberFormatException ex) {
-				// Catch block for handling NumberFormatException, which occurs when parsing strings to numbers
 				JOptionPane.showMessageDialog(null, "Invalid input. Please enter valid numbers.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			} catch (SQLException ex) {
-				// Catch block for handling SQLException, which may occur during database operations
 				ex.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Error updating inventory: " + ex.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
+
 	private void updateInventory(int itemId, String newItemName, int newQuantity, double newPrice, int newSupplierId,
 			String newExpiryDate, String newProductDetails, int newOptimumLevel) {
 		// Update the Inventory based on user input
@@ -209,81 +209,86 @@ public class InventoryPage extends JFrame {
 				+ "SupplierID = COALESCE(?, SupplierID), " + "ExpiryDate = COALESCE(?, ExpiryDate), "
 				+ "ProductDetails = COALESCE(?, ProductDetails), " + "OptimumLevel = COALESCE(?, OptimumLevel) "
 				+ "WHERE ItemID = ?";
-		// Try-with-resources statement for automatic resource management of Connection and PreparedStatement
+
 		try (Connection connection = DatabaseManager.getConnection();
-		        PreparedStatement updateStatement = connection.prepareStatement(updateSql)) {
-		    // Set parameters for the prepared statement
-		    updateStatement.setString(1, newItemName);
-		    updateStatement.setInt(2, newQuantity);
-		    updateStatement.setDouble(3, newPrice);
-		    updateStatement.setInt(4, newSupplierId);
-		    updateStatement.setString(5, newExpiryDate);
-		    updateStatement.setString(6, newProductDetails);
-		    updateStatement.setInt(7, newOptimumLevel);
-		    updateStatement.setInt(8, itemId);
+				PreparedStatement updateStatement = connection.prepareStatement(updateSql)) {
+			updateStatement.setString(1, newItemName);
+			updateStatement.setInt(2, newQuantity);
+			updateStatement.setDouble(3, newPrice);
+			updateStatement.setInt(4, newSupplierId);
+			updateStatement.setString(5, newExpiryDate);
+			updateStatement.setString(6, newProductDetails);
+			updateStatement.setInt(7, newOptimumLevel);
+			updateStatement.setInt(8, itemId);
 
-		    // Execute the update statement and get the number of rows affected
-		    int rowsAffected = updateStatement.executeUpdate();
+			int rowsAffected = updateStatement.executeUpdate();
 
-		    // Check if the update was successful
-		    if (rowsAffected > 0) {
-		        // Display a success message if rows were affected
-		        JOptionPane.showMessageDialog(null, "Inventory updated successfully!", "Success",
-		                JOptionPane.INFORMATION_MESSAGE);
-		    } else {
-		        // Display an error message if no rows were affected
-		        JOptionPane.showMessageDialog(null, "Failed to update inventory.", "Error", JOptionPane.ERROR_MESSAGE);
-		    }
+			if (rowsAffected > 0) {
+				JOptionPane.showMessageDialog(null, "Inventory updated successfully!", "Success",
+						JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(null, "Failed to update inventory.", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 		} catch (SQLException ex) {
-		    // Handle SQLException by printing the stack trace and displaying an error message
-		    ex.printStackTrace();
-		    JOptionPane.showMessageDialog(null, "Error updating inventory: " + ex.getMessage(), "Error",
-		            JOptionPane.ERROR_MESSAGE);
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error updating inventory: " + ex.getMessage(), "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
+
 	private void displayInventoryLevel() {
 		// Set monospaced font for better alignment
 		resultArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
 		// Clear the existing data in the resultArea
 		resultArea.setText("");
+		
+		try {
+            String inventoryData = dataFetcher.fetchInventoryData();
+//            System.out.println(inventoryData);
+            resultArea.setText(inventoryData);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error in showing inventory level: " + e.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
 
-		// SQL query
-		String sql = "SELECT ItemID, ItemName, Quantity, OptimumLevel, SupplierID, ExpiryDate FROM Inventory";
-
-		try (Connection connection = DatabaseManager.getConnection();
-				PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-			// Execute the query
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			// Process the result set and update the resultArea
-			StringBuilder formattedInventoryData = new StringBuilder("Inventory Levels:\n");
-			formattedInventoryData.append(String.format("%-10s%-20s%-10s%-15s%-15s%-20s\n", "Item ID", "Item Name",
-					"Quantity", "Optimum Level", "Supplier ID", "Expiry Date"));
-
-			while (resultSet.next()) {
-				int itemId = resultSet.getInt("ItemID");
-				String itemName = resultSet.getString("ItemName");
-				int quantity = resultSet.getInt("Quantity");
-				int optimumLevel = resultSet.getInt("OptimumLevel");
-				int supplierId = resultSet.getInt("SupplierID");
-				String expiryDate = resultSet.getString("ExpiryDate");
-
-				// Append the formatted data to the StringBuilder
-				formattedInventoryData.append(String.format("%-10d%-20s%-10d%-15d%-15d%-20s\n", itemId, itemName,
-						quantity, optimumLevel, supplierId, expiryDate));
-			}
-
-			// Set the formatted data to the resultArea
-			resultArea.setText(formattedInventoryData.toString());
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			// Handle exceptions (log or display an error message)
-			JOptionPane.showMessageDialog(null, "Error in showing inventory level: " + e.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
+//		// SQL query
+//		String sql = "SELECT ItemID, ItemName, Quantity, OptimumLevel, SupplierID, ExpiryDate FROM Inventory";
+//
+//		try (Connection connection = DatabaseManager.getConnection();
+//				PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+//
+//			// Execute the query
+//			ResultSet resultSet = preparedStatement.executeQuery();
+//
+//			// Process the result set and update the resultArea
+//			StringBuilder formattedInventoryData = new StringBuilder("Inventory Levels:\n");
+//			formattedInventoryData.append(String.format("%-10s%-20s%-10s%-15s%-15s%-20s\n", "Item ID", "Item Name",
+//					"Quantity", "Optimum Level", "Supplier ID", "Expiry Date"));
+//
+//			while (resultSet.next()) {
+//				int itemId = resultSet.getInt("ItemID");
+//				String itemName = resultSet.getString("ItemName");
+//				int quantity = resultSet.getInt("Quantity");
+//				int optimumLevel = resultSet.getInt("OptimumLevel");
+//				int supplierId = resultSet.getInt("SupplierID");
+//				String expiryDate = resultSet.getString("ExpiryDate");
+//
+//				// Append the formatted data to the StringBuilder
+//				formattedInventoryData.append(String.format("%-10d%-20s%-10d%-15d%-15d%-20s\n", itemId, itemName,
+//						quantity, optimumLevel, supplierId, expiryDate));
+//			}
+//
+//			// Set the formatted data to the resultArea
+//			resultArea.setText(formattedInventoryData.toString());
+//
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//			// Handle exceptions (log or display an error message)
+//			JOptionPane.showMessageDialog(null, "Error in showing inventory level: " + e.getMessage(), "Error",
+//					JOptionPane.ERROR_MESSAGE);
+//		}
 	}
 
 	private void discardInventory(int itemId, int quantity) {
@@ -381,50 +386,60 @@ public class InventoryPage extends JFrame {
 
 		// Clear the existing data in the resultArea
 		resultArea.setText("");
-
-		// SQL query
-		String sql = "SELECT * FROM Inventory WHERE ItemName LIKE ?";
-
-		try (Connection connection = DatabaseManager.getConnection();
-				PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-			// Set parameter for the prepared statement
-			preparedStatement.setString(1, "%" + query + "%");
-
-			// Execute the query
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			// Process the result set and update the UI
-			StringBuilder searchResult = new StringBuilder("Search results:\n");
-			searchResult.append(String.format("%-10s%-20s%-12s%-10s%-15s%-15s%-50s\n", "Item ID", "Item", "Quantity",
-					"Price", "Supplier ID", "Expiry Date", "Product Details"));
-
-			boolean resultsFound = false;
-
-			while (resultSet.next()) {
-				resultsFound = true;
-				int itemId = resultSet.getInt("ItemID");
-				String itemName = resultSet.getString("ItemName");
-				int quantity = resultSet.getInt("Quantity");
-				double price = resultSet.getDouble("Price");
-				int supplierId = resultSet.getInt("SupplierID");
-				String expiryDate = resultSet.getString("ExpiryDate");
-				String productDetails = resultSet.getString("ProductDetails");
-
-				searchResult.append(String.format("%-10d%-20s%-12d%-10.2f%-15d%-15s%-50s\n", itemId, itemName, quantity,
-						price, supplierId, expiryDate, productDetails));
-			}
-
-			if (!resultsFound) {
-				searchResult.append(String.format("No results found for: %s", query));
-			}
-
-			resultArea.setText(searchResult.toString());
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			// Handle exceptions (log or display an error message)
-		}
+		
+		try {
+            // Use the searcher object to perform the search
+            String searchResults = searcher.performSearch(query);
+            resultArea.setText(searchResults);            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            resultArea.setText("Error performing search.");
+        }
+		
+		
+//		// SQL query
+//		String sql = "SELECT * FROM Inventory WHERE ItemName LIKE ?";
+//
+//		try (Connection connection = DatabaseManager.getConnection();
+//				PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+//
+//			// Set parameter for the prepared statement
+//			preparedStatement.setString(1, "%" + query + "%");
+//
+//			// Execute the query
+//			ResultSet resultSet = preparedStatement.executeQuery();
+//
+//			// Process the result set and update the UI
+//			StringBuilder searchResult = new StringBuilder("Search results:\n");
+//			searchResult.append(String.format("%-10s%-20s%-12s%-10s%-15s%-15s%-50s\n", "Item ID", "Item", "Quantity",
+//					"Price", "Supplier ID", "Expiry Date", "Product Details"));
+//
+//			boolean resultsFound = false;
+//
+//			while (resultSet.next()) {
+//				resultsFound = true;
+//				int itemId = resultSet.getInt("ItemID");
+//				String itemName = resultSet.getString("ItemName");
+//				int quantity = resultSet.getInt("Quantity");
+//				double price = resultSet.getDouble("Price");
+//				int supplierId = resultSet.getInt("SupplierID");
+//				String expiryDate = resultSet.getString("ExpiryDate");
+//				String productDetails = resultSet.getString("ProductDetails");
+//
+//				searchResult.append(String.format("%-10d%-20s%-12d%-10.2f%-15d%-15s%-50s\n", itemId, itemName, quantity,
+//						price, supplierId, expiryDate, productDetails));
+//			}
+//
+//			if (!resultsFound) {
+//				searchResult.append(String.format("No results found for: %s", query));
+//			}
+//
+//			resultArea.setText(searchResult.toString());
+//
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//			// Handle exceptions (log or display an error message)
+//		}
 	}
 
 	private void viewDisposalRecords() {
@@ -467,15 +482,13 @@ public class InventoryPage extends JFrame {
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	// Entry point for the application
+
 	public static void main(String[] args) {
-	    // Use SwingUtilities to invoke the creation and display of the JFrame on the Event Dispatch Thread
-	    SwingUtilities.invokeLater(new Runnable() {
-	        @Override
-	        public void run() {
-	            // Create a new instance of InventoryPage and set it to be visible
-	            new InventoryPage().setVisible(true);
-	        }
-	    });
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				new InventoryPage().setVisible(true);
+			}
+		});
 	}
 }

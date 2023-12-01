@@ -11,13 +11,13 @@ import java.sql.SQLException;
 
 public class OrderManagementPage extends JFrame {
 
-	private JTextField itemNameField;
-	private JTextField quantityField;
-	private JTextField priceField;
-	private JTextField supplierIdField;
-	private JTextField expiryDateField;
-	private JTextField productDetailsField;
-	private JTextField optimumLevelField; // Added for OptimumLevel input
+	JTextField itemNameField;
+	JTextField quantityField;
+	JTextField priceField;
+	JTextField supplierIdField;
+	JTextField expiryDateField;
+	JTextField productDetailsField;
+	JTextField optimumLevelField; // Added for OptimumLevel input
 	private JButton placeOrderButton;
 	private JButton displayOrderTableButton; // Added button to display order table
 
@@ -83,87 +83,29 @@ public class OrderManagementPage extends JFrame {
 	}
 
 	private void placeOrder() throws SQLException {
-		// Parse input values
 		String itemName = itemNameField.getText();
-		int quantity = Integer.parseInt(quantityField.getText());
-		double price = Double.parseDouble(priceField.getText());
-		int supplierId = Integer.parseInt(supplierIdField.getText());
-		String expiryDate = expiryDateField.getText();
-		String productDetails = productDetailsField.getText();
-		int optimumLevel = Integer.parseInt(optimumLevelField.getText()); // Added for OptimumLevel input
+	    int quantity = Integer.parseInt(quantityField.getText());
+	    double price = Double.parseDouble(priceField.getText());
+	    int supplierId = Integer.parseInt(supplierIdField.getText());
+	    String expiryDate = expiryDateField.getText();
+	    String productDetails = productDetailsField.getText();
+	    int optimumLevel = Integer.parseInt(optimumLevelField.getText());
 
-		// Validate non-negative quantity, price, and optimum level
-		if (quantity < 0 || price < 0 || optimumLevel < 0) {
-			JOptionPane.showMessageDialog(this, "Quantity, price, and optimum level must be non-negative.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-			return;
-		}
+	    OrderManager orderManager = new OrderManager();
+	    OrderManager.OrderResult result;
 
-		// SQL query to insert order into the Order table
-		String orderSql = "INSERT INTO `Order` (ItemName, Quantity, Price, SupplierID, ExpiryDate, ProductDetails) "
-				+ "VALUES (?, ?, ?, ?, ?, ?)";
-
-		try (Connection connection = DatabaseManager.getConnection();
-				PreparedStatement orderStatement = connection.prepareStatement(orderSql,
-						PreparedStatement.RETURN_GENERATED_KEYS)) {
-
-			// Set parameters for the order statement
-			orderStatement.setString(1, itemName);
-			orderStatement.setInt(2, quantity);
-			orderStatement.setDouble(3, price);
-			orderStatement.setInt(4, supplierId);
-			orderStatement.setString(5, expiryDate);
-			orderStatement.setString(6, productDetails);
-
-			// Execute the order insertion query
-			int rowsAffected = orderStatement.executeUpdate();
-
-			if (rowsAffected > 0) {
-				// Get the generated order ID
-				ResultSet generatedKeys = orderStatement.getGeneratedKeys();
-				int orderId = -1;
-				if (generatedKeys.next()) {
-					orderId = generatedKeys.getInt(1);
-				}
-
-				// Insert the details into the Inventory table as a new row
-				String inventorySql = "INSERT INTO Inventory (ItemName, Quantity, OptimumLevel, Price, SupplierID, ExpiryDate, ProductDetails) "
-						+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-				try (PreparedStatement inventoryStatement = connection.prepareStatement(inventorySql)) {
-					// Set parameters for the inventory statement
-					inventoryStatement.setString(1, itemName);
-					inventoryStatement.setInt(2, quantity);
-					inventoryStatement.setInt(3, optimumLevel);
-					inventoryStatement.setDouble(4, price);
-					inventoryStatement.setInt(5, supplierId);
-					inventoryStatement.setString(6, expiryDate);
-					inventoryStatement.setString(7, productDetails);
-
-					// Execute the inventory insertion query
-					inventoryStatement.executeUpdate();
-
-					// Display success message with a button to view order table
-					String successMessage = "Order placed successfully! Order ID: " + orderId;
-					int option = JOptionPane.showOptionDialog(this, successMessage, "Success",
-							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new Object[] {}, null);
-
-					// If the user clicks the "View Order Table" button, display the order table
-					if (option == 0) {
-						displayOrderTable();
-					}
-				}
-			} else {
-				JOptionPane.showMessageDialog(this, "Failed to place order.", "Error", JOptionPane.ERROR_MESSAGE);
-			}
-
-		} catch (SQLException ex) {
-		    // Handle any SQL exception that may occur during the order placement
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Error placing order: " + ex.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
+	    try {
+	        result = orderManager.placeOrder(itemName, quantity, price, supplierId, expiryDate, productDetails, optimumLevel);
+	        if (result.success) {
+	            JOptionPane.showMessageDialog(this, "Order placed successfully! Order ID: " + result.orderId, "Success", JOptionPane.INFORMATION_MESSAGE);
+	        } else {
+	            JOptionPane.showMessageDialog(this, "Failed to place order.", "Error", JOptionPane.ERROR_MESSAGE);
+	        }
+	    } catch (IllegalArgumentException | SQLException e) {
+	        JOptionPane.showMessageDialog(this, "Error placing order: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	    }
 	}
+
 	private void displayOrderTable() {
 		// SQL query to fetch order records
 		String orderSql = "SELECT * FROM `Order`";
@@ -196,10 +138,10 @@ public class OrderManagementPage extends JFrame {
 			orderTableArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 			orderTableArea.setEditable(false);
 			orderTableArea.setText(orderResult.toString());
-		    // Create a scroll pane for the order table area
+
 			JScrollPane scrollPane = new JScrollPane(orderTableArea);
 			scrollPane.setPreferredSize(new Dimension(600, 400));
-		    // Show a message dialog with the order table inside a scroll pane
+
 			JOptionPane.showMessageDialog(this, scrollPane, "Order Table", JOptionPane.PLAIN_MESSAGE);
 
 		} catch (SQLException ex) {
